@@ -6,7 +6,7 @@ fn main() -> std::io::Result<()> {
     let file = File::open("day1_input.txt")
                                 .expect("File exists");
     let  buf_reader = BufReader::new(file);
-    let mut max  = 0;
+    let mut elfs_calories: Vec<i32> = vec![];
     let mut current = 0;
     for line in buf_reader.lines() {
         match line {
@@ -15,18 +15,21 @@ fn main() -> std::io::Result<()> {
                     let num: i32 = x.trim().parse().expect("Please give a number");
                     current += num;
                 } else {
-                    if current >= max {
-                        max = current;
-                    }
+                    elfs_calories.push(current);
                     current = 0;
                 }
             },
             _ => {}
         }
     }
-    if current > max {
-        max = current;
+    elfs_calories.push(current);
+    elfs_calories.sort();
+    elfs_calories.reverse();
+    let mut total = 0 ;
+    for el in elfs_calories[..3].to_vec() {
+        total += el;
+        println!("{}",el) 
     }
-    println!("Max: {max}");
+    println!("Total: {total}");
     Ok(())
 }
