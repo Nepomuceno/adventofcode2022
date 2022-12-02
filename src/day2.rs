@@ -11,25 +11,23 @@ fn main() -> std::io::Result<()> {
         let mut round = 0;
         match line {
             Ok(x) => {
-                let decrypted = x.replace("X", "A").replace("Y", "B").replace("Z", "C");
-                match decrypted.as_str() {
-                    "A A" => round = 4,
-                    "A B" => round = 8,
-                    "A C" => round = 3,
-                    "B A" => round = 1,
-                    "B B" => round = 5,
-                    "B C" => round = 9,
-                    "C A" => round = 7,
-                    "C B" => round = 2,
-                    "C C" => round = 6,
+                match x.as_str() {
+                    "A X" => round = 3,
+                    "A Y" => round = 4,
+                    "A Z" => round = 8,
+                    "B X" => round = 1,
+                    "B Y" => round = 5,
+                    "B Z" => round = 9,
+                    "C X" => round = 2,
+                    "C Y" => round = 6,
+                    "C Z" => round = 7,
                     _ => panic!("Invalid score")
                 }
                 score += round;
-                println!("round: {decrypted} score: {round} / {score} ")
+                println!("round: {x} score: {round} / {score} ")
             },
             Err(_) => panic!("invalid line"),
         }
     }
-    score += 1;
     Ok(())
 }
