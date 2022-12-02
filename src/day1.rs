@@ -3,7 +3,7 @@ use std::io::{BufReader, BufRead};
 
 
 fn main() -> std::io::Result<()> {
-    let file = File::open("day1_input.txt")
+    let file = File::open("data/day1_input.txt")
                                 .expect("File exists");
     let  buf_reader = BufReader::new(file);
     let mut elfs_calories: Vec<i32> = vec![];
