@@ -1,11 +1,4 @@
-use std::{
-    fs::File,
-    io::{BufRead, BufReader, Result},
-    path::Path,
-};
-
-
-fn get_letter_in_common(a : String, b: String, c: String) -> char {
+fn get_letter_in_common(a : &str, b: &str, c: &str) -> char {
     for l in a.chars() {
         if b.contains(l) && c.contains(l){
             return l
@@ -13,13 +6,10 @@ fn get_letter_in_common(a : String, b: String, c: String) -> char {
     }
     return '0';
 }
-fn lines_from_file(filename: impl AsRef<Path>) -> Result<Vec<String>> {
-    BufReader::new(File::open(filename)?).lines().collect()
-}
-fn main() -> std::io::Result<()> {
-    let file_lines = lines_from_file("data/day3_input.txt")
-                                .expect("File exists");
-    let elves_group = file_lines.chunks(3);
+
+pub fn run(input: &str) -> String {
+    let lines = &input.lines().collect::<Vec<&str>>(); 
+    let elves_group = lines.chunks(3);
     let letters = elves_group.map(|group| {
         let letter = get_letter_in_common(
             group.get(0).expect("Not Found").to_owned(),
@@ -32,7 +22,5 @@ fn main() -> std::io::Result<()> {
         }
     });
     let result: u32 = letters.sum();
-    println!("{}", result);
-    
-    Ok(())
+    result.to_string()
 }
