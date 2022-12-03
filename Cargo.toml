@@ -9,4 +9,4 @@ edition = "2021"
 
 [[bin]]
 name = "adventofcode2022"
-path = "src/day2.rs"
+path = "src/day3.rs"
