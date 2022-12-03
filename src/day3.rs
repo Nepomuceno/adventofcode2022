@@ -1,22 +1,30 @@
-use std::fs::File;
-use std::io::{BufReader, BufRead};
+use std::{
+    fs::File,
+    io::{BufRead, BufReader, Result},
+    path::Path,
+};
 
-fn get_letter_in_common(a : String, b: String) -> char {
+
+fn get_letter_in_common(a : String, b: String, c: String) -> char {
     for l in a.chars() {
-        if b.contains(l){
+        if b.contains(l) && c.contains(l){
             return l
         }
     }
     return '0';
 }
+fn lines_from_file(filename: impl AsRef<Path>) -> Result<Vec<String>> {
+    BufReader::new(File::open(filename)?).lines().collect()
+}
 fn main() -> std::io::Result<()> {
-    let file = File::open("data/day3_input.txt")
+    let file_lines = lines_from_file("data/day3_input.txt")
                                 .expect("File exists");
-    let buf_reader = BufReader::new(file);
-    let letters = buf_reader.lines().map(|file| {
-        let file_str = file.expect("line not found");
-        let compartments = file_str.split_at(file_str.len()/2);
-        let letter = get_letter_in_common(compartments.0.to_string(),compartments.1.to_string());
+    let elves_group = file_lines.chunks(3);
+    let letters = elves_group.map(|group| {
+        let letter = get_letter_in_common(
+            group.get(0).expect("Not Found").to_owned(),
+            group.get(1).expect("Not Found").to_owned(),
+            group.get(2).expect("Not found").to_owned());
         if letter.is_ascii_uppercase() {
             letter as u32 - 38
         } else {
