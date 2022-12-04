@@ -7,13 +7,18 @@ pub fn run(input: &str) -> String {
         .map(|x| x.split('-')
                         .map(|f| f.parse::<u32>().unwrap()).collect::<VecDeque<_>>())
         .collect::<VecDeque<_>>();
-        if pair[0][0] <= pair[1][0] && pair[0][1] >= pair[1][1]
+        if (pair[0][0] <= pair[1][1] && pair[0][0] >= pair[1][0]) ||
+           (pair[0][1] <= pair[1][1] && pair[0][1] >= pair[1][0])
         {
             overlap += 1;
-        } else if pair[1][0] <= pair[0][0] && pair[1][1] >= pair[0][1] {
+        } else if (pair[1][0] <= pair[0][1] && pair[1][0] >= pair[0][0]) ||
+                  (pair[1][1] <= pair[0][1] && pair[1][1] >= pair[0][0]) 
+        {
             overlap += 1;
+        } else  {
+            println!("no overlap {pair:?}")
         }
-        println!("{overlap}")
+        println!("{overlap} {pair:?}")
     }
     overlap.to_string()
 }
