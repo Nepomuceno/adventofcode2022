@@ -45,13 +45,18 @@ pub fn run(input: &str) -> String {
         let number = captures[1].parse::<usize>().unwrap();
         let from = captures[2].parse::<usize>().unwrap() - 1;
         let to = captures[3].parse::<usize>().unwrap() - 1;
+        let mut transvfer_vec:VecDeque<String> = VecDeque::new();
         for _ in 0..number {
             let container = containers[from].pop_front().unwrap();
+            transvfer_vec.push_back(container)
+        }
+        for _ in 0..number {
+            let container = transvfer_vec.pop_back().unwrap();
             containers[to].push_front(container)
         }
+
         println!("{containers:?}");
     }
-    println!("{containers:?}");
     let mut result = "".to_owned();
     for container in containers {
         result.push_str(container[0].as_str())
