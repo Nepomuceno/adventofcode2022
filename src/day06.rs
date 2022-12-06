@@ -16,7 +16,7 @@ pub fn run(input: &str) -> String {
            }
        }
        temp.push_back(input_char);
-       if temp.len() == 4 {
+       if temp.len() == 14 {
          break;
        } 
        content = temp;
