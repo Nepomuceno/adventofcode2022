@@ -2,7 +2,7 @@ use std::{collections::VecDeque, cell::RefCell, rc::Rc};
 
 use regex::Regex;
 struct File {
-    size: u32,
+    size: i32,
     name: String
 }
 struct Dir {
@@ -63,7 +63,7 @@ pub fn run(input: &str) -> String {
                 while j < lines.len() && !lines[j].starts_with("$")  {
                     if file_regex.is_match(lines[j]) {
                         let captures = file_regex.captures(lines[j]).unwrap();
-                        let size = captures[1].parse::<u32>().unwrap();
+                        let size = captures[1].parse::<i32>().unwrap();
                         let name = captures[2].to_string();
                         current.borrow_mut().files.push_back(File {size: size, name: name});
                     }
@@ -80,20 +80,21 @@ pub fn run(input: &str) -> String {
     root.borrow().print();
 
 
-    let stacks = Rc::new(RefCell::new(VecDeque::new()));
+    let stacks = Rc::new(RefCell::new(Vec::new()));
     let stack_clone = Rc::clone(&stacks);
     calculate_size(root, stack_clone);
-    let mut sum = 0;
-    for size in stacks.borrow().iter() {
-        if *size < 100000 {
-            sum += *size;
-            println!("{size}")
+    let mut content = stacks.borrow_mut();
+    content.sort();
+    let needed_to_free:i32 = 70000000 - content.last().unwrap() - 30000000;
+    for size in content.iter() {
+        if *size + needed_to_free > 0 {
+            return (*size).to_string()
         }
-    }
-    return sum.to_string();
+    } 
+    return 0.to_string();
 }
 
-fn calculate_size(dir: Rc<RefCell<Dir>>,  sizes: Rc<RefCell<VecDeque<u32>>>) -> u32 {
+fn calculate_size(dir: Rc<RefCell<Dir>>,  sizes: Rc<RefCell<Vec<i32>>>) -> i32 {
     let mut sum = 0; 
     for file in dir.borrow().files.iter() {
         sum += file.size
@@ -101,6 +102,6 @@ fn calculate_size(dir: Rc<RefCell<Dir>>,  sizes: Rc<RefCell<VecDeque<u32>>>) -> 
     for child in dir.borrow().children.iter() {
         sum += calculate_size(Rc::clone(child), Rc::clone(&sizes));
     }
-    sizes.borrow_mut().push_back(sum);
+    sizes.borrow_mut().push(sum);
     return sum
 }
