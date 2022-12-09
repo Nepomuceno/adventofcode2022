@@ -35,7 +35,7 @@ impl Dir {
 
 pub fn run(input: &str) -> String {
     let lines = input.lines().collect::<VecDeque<_>>();
-    let mut root = Rc::new(RefCell::new(Dir::new("/".to_string(), None)));
+    let root = Rc::new(RefCell::new(Dir::new("/".to_string(), None)));
     let mut current = Rc::clone(&root);
 
     let re_cd = Regex::new(r"^\$ cd (\w*)$").unwrap();
