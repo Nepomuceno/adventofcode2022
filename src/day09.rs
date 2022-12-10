@@ -1,14 +1,5 @@
 use std::{collections::{VecDeque, HashSet}};
 
-pub fn is_touching_tail(head: (i32,i32), tail: (i32,i32)) -> bool {
-    if tail.0 >= head.0 - 1 && tail.0 <= head.0 + 1 {
-        if tail.1 >= head.1 - 1 && tail.1 <= head.1 + 1 {
-            return true;
-        }
-    }
-    return false;
-}
-
 pub fn find_move (target: (i32,i32), chasing: (i32,i32)) -> (i32,i32) {
     let result = (chasing.0 - target.0, chasing.1 - target.1);
     if !(result.0.abs() > 1 || result.1.abs() > 1) {
