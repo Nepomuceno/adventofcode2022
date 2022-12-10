@@ -1,39 +1,37 @@
 use std::{collections::{VecDeque}};
 
+pub fn print_content (x: i32, cycles: i32) {
+    if x - cycles > 0 || x - cycles < -2 {
+        print!(" ");
+    } else {
+        print!("#");
+    }
+    if cycles % 40 == 0 {
+        println!();
+    }
+}
 
 pub fn run(input: &str) -> String {
-    let mut total_stregh = 0;
-    let lines = input.lines();
+    let lines = input.lines().collect::<VecDeque<&str>>();
     let mut cycles = 0;
-    let mut value = 1;
-    let mut strengts = VecDeque::new();
+    let mut x = 1;
 
-    for line in lines {
-        let command = line.split(" ").collect::<VecDeque<&str>>();
+    for i in 0..lines.len() {
         cycles += 1;
-        strengts.push_back(value * cycles);
+        let command = lines[i].split(" ").collect::<VecDeque<&str>>();
+        print_content(x, cycles);
+        if cycles == 40 {
+            cycles = 0;
+        }
         if command.len() == 2 {
             cycles += 1;
-            strengts.push_back(value * cycles);
-            value += command[1].trim().parse::<i32>().unwrap();
+            print_content(x, cycles);
+            if cycles == 40 {
+                cycles = 0;
+            }    
+            x += command[1].trim().parse::<i32>().unwrap();
         }
     }
-    let mut mod_20 = true;
-    let mut i = 0;
-    for j in 0..strengts.len() {
-        i += 1;
-        if mod_20 && i == 20 {
-            total_stregh += strengts[j];
-            mod_20 = false;
-            println!("{} {} {}", i, strengts[j], j);
-            i = 0;
-        } else if i == 40 { 
-            total_stregh += strengts[j];
-            println!("{} {} {}", i, strengts[j], j);
-            i = 0;
-        }
-        
-    }
-    return total_stregh.to_string();
+    return 0.to_string();
 }
 
