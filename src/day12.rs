@@ -1,8 +1,8 @@
 use std::{collections::{VecDeque}};
 
 
-pub fn solve(grid: VecDeque<VecDeque<char>>,start: (usize,usize)) -> usize {
-    let mut positions_to_check = vec![vec![start]];
+pub fn solve(grid: VecDeque<VecDeque<char>>,start: Vec<(usize,usize)>) -> usize {
+    let mut positions_to_check = vec![start];
     let mut checked_positions:Vec<(usize,usize)> = vec![];
     let mut number_of_visits:usize = 0;
     'total: loop {
@@ -63,14 +63,15 @@ pub fn solve(grid: VecDeque<VecDeque<char>>,start: (usize,usize)) -> usize {
 
 
 pub fn run(input: &str) -> String {
-    let mut grid: VecDeque<VecDeque<char>>  = VecDeque::from(input.lines()
+    let filtered_input =input.replace("S", "a");
+    let mut grid: VecDeque<VecDeque<char>>  = VecDeque::from(filtered_input.lines()
     .map(|x| VecDeque::from(x.chars().collect::<VecDeque<char>>()))
     .collect::<VecDeque<VecDeque<char>>>());
-    let mut start = (0, 0);
+    let mut start = vec![];
     for (x, row) in grid.iter().enumerate() {
         for (y, value) in row.iter().enumerate() {
-            if *value == 'S' {
-                start = (x, y);
+            if *value == 'a' {
+                start.push((x, y));
             }
         }
     }
