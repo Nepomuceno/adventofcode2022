@@ -5,25 +5,23 @@ use json::JsonValue;
 pub fn run(input: &str) -> String {
     let mut in_order = 0;
     let pairs = input.split("\n\n").collect::<Vec<&str>>();
+    let mut packages = vec![];
     for (i,pair) in pairs.into_iter().enumerate() {
         let (left,right) = pair.split_once("\n").map(|f| 
             (json::parse(f.0).unwrap(), json::parse(f.1).unwrap())).unwrap();
-        println!("---- 1 ----");
-        let result_1 = check_arrays_in_order_1(&mut left.clone(), &mut right.clone());
-        println!("---- 2 ----");
-        let result = check_arrays_in_order(&mut left.clone(), &mut right.clone());
-        if  result == 1 {
-            in_order += i + 1;
-            println!("[ORDER] {}: {} , {} ", i, left, right)
-        } else {
-            println!("[NOT] {}: {} , {}, ", i, left, right)
-        }
-        if result_1 != result {
-            println!("{}: {} , {} , {} , {}", i, left, right, result_1, result)
-        }
-        //println!("{}: {} in order", i, in_order);
+        packages.push(left);
+        packages.push(right);
     }
-    in_order.to_string()
+    packages.push(json::parse("[[2]]").unwrap());
+    packages.push(json::parse("[[6]]").unwrap());
+    packages.sort_by(| a,b| check_arrays_in_order(&mut b.clone(),&mut a.clone()).cmp(&0));
+    let first_index = packages.iter().position(|f| f == &json::parse("[[2]]").unwrap()).unwrap();
+    let second_index = packages.iter().position(|f| f == &json::parse("[[6]]").unwrap()).unwrap();
+    for (i,package) in packages.iter().enumerate() {
+        println!("{}: {}", i, package);
+    }
+    println!("First: {}, Second: {}", first_index, second_index);
+    ((first_index+1)*(second_index+1)).to_string()
 }
 
 fn check_arrays_in_order_1(left: &mut JsonValue, right: &mut JsonValue) -> i32 {
