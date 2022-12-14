@@ -3,7 +3,7 @@ use std::{collections::{VecDeque}};
 pub fn print_grid(grid: Vec<Vec<char>>) {
     for row in grid.iter() {
         for col in row.iter().enumerate() {
-            if col.0 > 460 {
+            if col.0 > 2450 && col.0 < 2600 {
                 print!("{}",col.1);
             }
         }
@@ -20,11 +20,11 @@ pub fn run(input: &str) -> String {
         for i in 1..paths.len() {
             let start = 
             paths[i-1].split_once(",")
-                .map(|x| (x.0.trim().parse::<usize>().unwrap(),x.1.trim().parse::<usize>().unwrap()))
+                .map(|x| (x.0.trim().parse::<usize>().unwrap() + 2000,x.1.trim().parse::<usize>().unwrap()))
                 .unwrap();
             let end =
             paths[i].split_once(",")
-                .map(|x| (x.0.trim().parse::<usize>().unwrap(),x.1.trim().parse::<usize>().unwrap()))
+                .map(|x| (x.0.trim().parse::<usize>().unwrap() + 2000,x.1.trim().parse::<usize>().unwrap()))
                 .unwrap();
             rock_lines.push((start,end));
         }
@@ -49,7 +49,7 @@ pub fn run(input: &str) -> String {
             max_y = rock_line.1.1;
         }
     }
-    let mut grid = vec![vec!['.';max_x+2];max_y+2];
+    let mut grid = vec![vec!['.';max_x+1000];max_y+3];
     for rock_line in rock_lines.iter() {
         // draw straigt horizontal or vertical line between the two points
         // they can be in any order
@@ -69,10 +69,15 @@ pub fn run(input: &str) -> String {
             }
         }
     }
+    let end = grid.len()-1;
+    // add floor
+    for x in 0..grid[0].len() {
+        grid[end][x] = '#';
+    }
     let mut sand_count = 0;
     let mut interactions = 0;
-    grid[0][500] = 'o';
-    let mut sand = (500,0);
+    grid[0][2500] = 'o';
+    let mut sand = (1500,0);
     print_grid(grid.clone());
     loop {
         interactions += 1;
@@ -99,15 +104,16 @@ pub fn run(input: &str) -> String {
                 grid[sand.1][sand.0] = '.';
                 sand = (sand.0+1,sand.1+1);
             } else {
+                if sand == (2500,0) {
+                    break;
+                }
                 grid[sand.1][sand.0] = 'x';
-                grid[0][500] = 'o';
-                sand = (500,0);
+                grid[0][2500] = 'o';
+                sand = (2500,0);
                 sand_count += 1;
-                println!("interactions: {}",interactions);
-                print_grid(grid.clone());
             }
         }
-        if interactions % 100000 == 0 {
+        if interactions % 1000000 == 0 {
             println!("interactions: {}",interactions);
             print_grid(grid.clone());
         }
