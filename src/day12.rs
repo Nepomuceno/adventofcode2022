@@ -28,7 +28,7 @@ pub fn solve(grid: VecDeque<VecDeque<char>>,start: (usize,usize),previous_starts
                 found = true;
                 break 'total;
             }
-            let mut elevation_value = 0;
+            let mut elevation_value ;
             
             if y > 0 {    
                 if grid[x][y-1] == 'E' { elevation_value = 'z' as usize; } else { elevation_value = grid[x][y-1] as usize; }
@@ -70,7 +70,7 @@ pub fn solve(grid: VecDeque<VecDeque<char>>,start: (usize,usize),previous_starts
 
 pub fn run(input: &str) -> String {
     let replaced = input.replace("S", "a");
-    let mut grid: VecDeque<VecDeque<char>>  = VecDeque::from(replaced.lines()
+    let grid: VecDeque<VecDeque<char>>  = VecDeque::from(replaced.lines()
     .map(|x| VecDeque::from(x.chars().collect::<VecDeque<char>>()))
     .collect::<VecDeque<VecDeque<char>>>());
     let mut starts = vec![];

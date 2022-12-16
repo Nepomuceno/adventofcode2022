@@ -1,4 +1,3 @@
-use std::{collections::{VecDeque}};
 
 pub fn print_grid(grid: Vec<Vec<char>>) {
     for row in grid.iter() {
@@ -29,9 +28,7 @@ pub fn run(input: &str) -> String {
             rock_lines.push((start,end));
         }
     }
-    for rock_line in rock_lines.iter() {
-        // println!("{:?}",rock_line);
-    }
+
     // get max x and y
     let mut max_x = 0;
     let mut max_y = 0;

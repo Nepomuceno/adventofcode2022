@@ -1,12 +1,10 @@
-use std::{collections::{VecDeque}};
 use json::JsonValue;
 
 
 pub fn run(input: &str) -> String {
-    let mut in_order = 0;
     let pairs = input.split("\n\n").collect::<Vec<&str>>();
     let mut packages = vec![];
-    for (i,pair) in pairs.into_iter().enumerate() {
+    for pair in pairs.into_iter() {
         let (left,right) = pair.split_once("\n").map(|f| 
             (json::parse(f.0).unwrap(), json::parse(f.1).unwrap())).unwrap();
         packages.push(left);
@@ -22,49 +20,6 @@ pub fn run(input: &str) -> String {
     }
     println!("First: {}, Second: {}", first_index, second_index);
     ((first_index+1)*(second_index+1)).to_string()
-}
-
-fn check_arrays_in_order_1(left: &mut JsonValue, right: &mut JsonValue) -> i32 {
-    println!("Compare: {} |--| {}", left, right);
-    
-    if left.len() == 0 {
-        return 1;
-    }
-    if right.len() == 0 {
-        return -1;
-    }
-    loop {
-        if left.len() == 0 {
-            return 1;
-        }
-        if right.len() == 0 {
-            return -1;
-        }
-        let mut left_num = left.array_remove(0);
-        let mut right_num = right.array_remove(0);
-        println!("Partial: {} , {}", &left_num, &right_num);
-        if right_num.is_number() && left_num.is_number() {
-            if left_num.as_i32().unwrap() < right_num.as_i32().unwrap() {
-                return 1;
-            } else if left_num.as_i32().unwrap() > right_num.as_i32().unwrap() {
-                return -1;
-            }
-        } else if right_num.is_array() && left_num.is_array() {
-            return check_arrays_in_order_1(&mut left_num, &mut right_num);
-        } else if right_num.is_array() && left_num.is_number() {
-            let content = format!("[{}]", left_num.as_i32().unwrap());
-            let mut content_value = json::parse(&content).unwrap();
-            if check_arrays_in_order_1(&mut content_value, &mut right_num) < 0{
-                return -1;
-            }
-        } else if right_num.is_number() && left_num.is_array() {
-            let content = format!("[{}]", right_num.as_i32().unwrap());
-            let mut content_value = json::parse(&content).unwrap();
-            if check_arrays_in_order_1(&mut left_num, &mut content_value) < 0 {
-                return -1;
-            }
-        }
-    }
 }
 
 fn check_arrays_in_order(left: &mut JsonValue, right: &mut JsonValue) -> i32 {

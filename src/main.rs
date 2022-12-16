@@ -17,6 +17,7 @@ mod day12;
 mod day13;
 mod day14;
 mod day15;
+mod day16;
 
 type DayFunction = fn(&str) -> String;
 
@@ -36,7 +37,7 @@ const ADVENTDAYS: [DayFunction;24] = [
     day13::run,
     day14::run,
     day15::run,
-    day08::run,
+    day16::run,
     day01::run,
     day02::run,
     day03::run,

@@ -12,7 +12,6 @@ enum Operation {
 #[derive(Debug)]
 #[derive(Clone)]
 struct Monkey {
-    name: String,
     test: u32,
     true_index: i32,
     false_index: i32,
@@ -45,7 +44,6 @@ impl Monkey {
         let false_index = lines[5].replace("If false: throw to monkey ", "").trim().parse::<i32>().unwrap();
         println!("{:?}", (name, test, true_index, false_index, &operation, operand));
         Monkey {
-            name: name.to_string(),
             test: test,
             true_index: true_index,
             false_index: false_index,
