@@ -1,13 +1,13 @@
-use std::collections::{HashMap};
+// use std::collections::{HashMap};
 
-#[derive(Debug)]
-#[derive(Clone)]
-struct Valve {
-    id: String,
-    flow_rate: u32,
-    tunnels: Vec<(String,bool)>,
-    open: bool,
-}
+// #[derive(Debug)]
+// #[derive(Clone)]
+// struct Valve {
+//     id: String,
+//     flow_rate: u32,
+//     tunnels: Vec<(String,bool)>,
+//     open: bool,
+// }
 
 // fn calculate_flow_remaining(valves: &mut HashMap<String, &mut Valve>, current_valve: &str, time_remaining: u32, path: &mut Vec<String>) -> (u32, Vec<String>) {
 //     path.push(current_valve.to_string());
@@ -65,22 +65,22 @@ struct Valve {
 
 pub fn run(input: &str) -> String {
     // let mut valves = HashMap::new();
-    for line in input.lines() {
-        let result = 
-        line.replace("Valve ", "")
-        .replace("has flow rate=", "")
-        .replace("; tunnels lead to valves", "")
-        .replace("; tunnel leads to valve", ",")
-        .replace(",", "");
-        let valve = Valve {
-            id: result.split(" ").next().unwrap().to_string(),
-            flow_rate: result.split(" ").nth(1).unwrap().parse().unwrap(),
-            tunnels: result.split(" ").skip(2).map(|s| (s.to_string(), false)).collect(),
-            open: false,
-        };        
-        // valves.insert(valve.id,&valve);
-    }
+    // for line in input.lines() {
+    //     let result = 
+    //     line.replace("Valve ", "")
+    //     .replace("has flow rate=", "")
+    //     .replace("; tunnels lead to valves", "")
+    //     .replace("; tunnel leads to valve", ",")
+    //     .replace(",", "");
+    //     let valve = Valve {
+    //         id: result.split(" ").next().unwrap().to_string(),
+    //         flow_rate: result.split(" ").nth(1).unwrap().parse().unwrap(),
+    //         tunnels: result.split(" ").skip(2).map(|s| (s.to_string(), false)).collect(),
+    //         open: false,
+    //     };        
+    //     // valves.insert(valve.id,&valve);
+    // }
     let flow = 0; //calculate_flow_remaining(&mut valves, "AA", 30, &mut vec![]);
     println!("{:?}", flow);
-    flow.to_string()
+    input.to_string()
 }
