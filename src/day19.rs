@@ -194,7 +194,7 @@ pub fn run(input: &str) -> String {
         let max_efficience = 0;
         let mut factory_states = HashSet::new();
         factory_states.insert((factories[i].clone().items,factories[i].clone().robots_count));
-        let days_to_calculate = 24;
+        let days_to_calculate = 32;
         let mut test_factories = vec![factories[i].clone()];
         for j in 0..days_to_calculate {
             let mut new_factories_temp = vec![];
@@ -232,8 +232,11 @@ pub fn run(input: &str) -> String {
         factories[i] = test_factories[0].clone();
     }
     
-    let result = factories.iter().map(|x| x.items[3] * x.index).sum::<usize>().to_string();
-    result
+    let mut total = 1;
+    for i in 0..factories.len() {
+        total *= factories[i].items[3];
+    }
+    total.to_string()
 }
 
 #[cfg(test)]
