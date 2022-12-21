@@ -1,10 +1,10 @@
-use std::{collections::HashSet, vec};
+use std::{collections::HashSet};
 
 
 const PRINT_ENABLED: bool = true;
 
 fn is_encapsulated(mut position: (i32, i32, i32), capsule: HashSet<(i32, i32, i32)>) -> bool {
-    let mut check_free = capsule.clone();
+    let check_free = capsule.clone();
     let free_faces = free_faces(&position, check_free);
     if free_faces.0.len() == 5 {
         return false;

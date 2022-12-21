@@ -22,9 +22,7 @@
                 ]
             },
             "program": "${cargo:program}",
-            "args": [
-                "19"
-            ]
+            "args": []
         }
     ]
 }

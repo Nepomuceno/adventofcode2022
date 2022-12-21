@@ -191,7 +191,6 @@ pub fn run(input: &str) -> String {
     
     for i in 0..factories.len() {
         let start = Instant::now();
-        let max_efficience = 0;
         let mut factory_states = HashSet::new();
         factory_states.insert((factories[i].clone().items,factories[i].clone().robots_count));
         let days_to_calculate = 32;
