@@ -9,6 +9,7 @@ edition = "2021"
 chrono = "0.4.23"
 regex = "1"
 json = "0.12.4"
+termion = "2.0.1"
 
 [[bin]]
 name = "adventofcode2022"

@@ -1,4 +1,4 @@
-use std::{time::Instant, collections::{HashSet, HashMap}, string};
+use std::{time::Instant, collections::{HashMap}};
 
 use regex::Regex;
 
@@ -118,7 +118,7 @@ fn check_if_contain_node(dynamic: &Dynamic, node: &str) -> bool {
                 false
             }
         },
-        Dynamic::Int(int) => {
+        Dynamic::Int(_) => {
             false
         },
         Dynamic::Operation(operation) => {
