@@ -2,7 +2,7 @@ use std::{time::{Instant, Duration}, collections::{HashMap}, thread};
 use termion::{color, style,cursor};
 
 
-
+const MAP_SIZE: usize = 4;
 
 const PRINT_ENABLED: bool = false;
 
