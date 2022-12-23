@@ -6,6 +6,9 @@ use termion::{color, style,cursor};
 const PRINT_ENABLED: bool = false;
 
 fn print_map(map: &HashSet<(i32,i32)>) {
+    if !PRINT_ENABLED {
+        return;
+    }
     print!("{}{}", termion::clear::All, cursor::Goto(1, 1));
     println!("------------------------------------- Map -------------------------------------");
     let min_y = map.iter().map(|(_,y)| y).min().unwrap();
@@ -25,6 +28,7 @@ fn print_map(map: &HashSet<(i32,i32)>) {
     }
     println!("-------------------------------------------------------------------------------");
     println!("{}{}",color::Fg(color::Reset) ,  style::Reset);
+    thread::sleep(Duration::from_millis(100));
 }
 
 fn get_free_map_spaces(map: &HashSet<(i32,i32)>) -> usize {
@@ -138,17 +142,25 @@ pub fn run(input: &str) -> String {
     };
     print_map(&map);
 
-    for _ in 0..10 {
+    let mut number_of_rounds = 0;
+    loop {
+        number_of_rounds += 1;
         let mut planned_moves = plan_moves(&map, plans.clone());
         filter_moves(&mut planned_moves);
+        if planned_moves.len() == 0 {
+            break;
+        }
         map = apply_moves(&map, &planned_moves);
         let top = plans.pop_front().unwrap();
         plans.push_back(top);
         print_map(&map);
-        thread::sleep(Duration::from_millis(100));
+        if number_of_rounds % 100 == 0 {
+            println!("Number of rounds: {}", number_of_rounds);
+        }
     }
     let count = get_free_map_spaces(&map);
-    return count.to_string();
+    println!("Free Spaces: {}", count);
+    return number_of_rounds.to_string();
 
 }
 
