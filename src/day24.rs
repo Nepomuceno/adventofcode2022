@@ -115,6 +115,47 @@ pub fn run(input: &str) -> String {
             break;
         }
     }
+    println!("GOING: {} rounds", rounds);
+    let temp_position = start_position;
+    start_position = goal_position;
+    goal_position = temp_position;
+    elf_positions = HashSet::new();
+    elf_positions.insert(start_position);
+    loop {
+        rounds += 1;
+        if elf_positions.len() == 0 {
+            panic!("No elves left");
+        }
+        elf_positions = multiply_elves(&elf_positions, map_x_length, map_y_length);
+        blizzards = move_blizzards(&blizzards, map_x_length, map_y_length);
+        elf_positions = elf_positions.difference(&blizzards.iter().map(|(x,y,_)| (*x,*y)).collect()).cloned().collect();
+        elf_positions = elf_positions.difference(&walls).cloned().collect();
+        print_map(map_x_length, map_y_length, &elf_positions, &walls, &blizzards);
+        if elf_positions.contains(&goal_position) {
+            break;
+        }
+    }
+    println!("RETURNING: {} rounds", rounds);
+    let temp_position = start_position;
+    start_position = goal_position;
+    goal_position = temp_position;
+    elf_positions = HashSet::new();
+    elf_positions.insert(start_position);
+    loop {
+        rounds += 1;
+        if elf_positions.len() == 0 {
+            panic!("No elves left");
+        }
+        elf_positions = multiply_elves(&elf_positions, map_x_length, map_y_length);
+        blizzards = move_blizzards(&blizzards, map_x_length, map_y_length);
+        elf_positions = elf_positions.difference(&blizzards.iter().map(|(x,y,_)| (*x,*y)).collect()).cloned().collect();
+        elf_positions = elf_positions.difference(&walls).cloned().collect();
+        print_map(map_x_length, map_y_length, &elf_positions, &walls, &blizzards);
+        if elf_positions.contains(&goal_position) {
+            break;
+        }
+    }
+    println!("AGAIN: {} rounds", rounds);
     rounds.to_string()
     
 }
