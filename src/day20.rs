@@ -2,33 +2,30 @@ use std::collections::VecDeque;
 use std::{time::Instant};
 
 const PRINT_ENABLED: bool = true;
-use std::mem;
 
-fn mixing(list: &mut VecDeque<(usize,i64)>) -> VecDeque<(usize,i64)> {
-    for i in 0..list.len() {
-        // get the index of i in the list
-        let index = list.iter().position(|x| x.0 == i).unwrap();
-        let mut movements = list[index].1 % list.len() as i64;
-        if movements > 0 {
-            let mut temp = list[index].clone();
-            for _ in 0..movements {
-                let next = list[index+1].clone();
-                mem::swap(&mut temp, &mut list[index+1]);
-                temp = next;
-            }
-        } else if movements < 0 {
-            movements = movements * -1;
-            let mut temp = list[index].clone();
-            for _ in 0..movements {
-                let next = list[index-1].clone();
-                mem::swap(&mut temp, &mut list[index-1]);
-                temp = next;
-            }
+
+
+fn mixing(vec: &mut VecDeque<(usize, i64)>) {
+    for x in 0..vec.len() {
+        // Find the element with the value x
+        let index = vec.iter().position(|(val, _)| *val == x).unwrap();
+        let (val, offset) = vec.remove(index).unwrap();
+
+        let vec_len = vec.len() as i64;
+        let mut new_index = index as i64 + offset;
+        new_index = new_index.rem_euclid(vec_len);
+        if new_index < 0 {
+            // If the new index is negative, add the vector length to wrap it around
+            new_index += vec_len;
         }
-        println!("{:?}", list);
+        // Insert the element at the new position
+        vec.insert(new_index as usize, (val, offset));
+        if PRINT_ENABLED {
+            println!("{} \t {} \t {}", x, new_index, offset);
+            println!("state {:?}", vec.iter().map(|x| x.1).collect::<Vec<_>>());
+        }
     }
-    list.clone()
-} 
+}
 
 pub fn run(input: &str) -> String {
     let start = Instant::now();
@@ -38,12 +35,17 @@ pub fn run(input: &str) -> String {
         list.push_back((i, value));
     }
     mixing(&mut list);
-    println!("{:?}", list);
-    
+    let position_of_zero = list.iter().position(|x| x.1 == 0).unwrap();
+    let k1_after_zero = (position_of_zero + 1000) % list.len();
+    let k2_after_zero = (position_of_zero + 2000) % list.len();
+    let k3_after_zero = (position_of_zero + 3000) % list.len();
+    println!("0: {} \t k1: {} \t k2: {} \t k3: {}", position_of_zero, k1_after_zero, k2_after_zero, k3_after_zero);
+    let result = list[k1_after_zero].1 + list[k2_after_zero].1 + list[k3_after_zero].1;
+
     if PRINT_ENABLED {
         println!("Elapsed: {:?}", start.elapsed());
     }
-    0.to_string()
+    result.to_string()
 }
 
 #[cfg(test)]
