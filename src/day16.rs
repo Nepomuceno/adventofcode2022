@@ -1,5 +1,6 @@
-use std::collections::{HashMap, HashSet};
+use std::{collections::{HashMap, HashSet, VecDeque}, ops::Index, sync::Mutex};
 use termion::{color, style,cursor};
+use rayon::prelude::*;
 
 #[derive(Debug)]
 #[derive(Clone)]
@@ -14,9 +15,10 @@ fn print_valves (valves: &HashMap<String, Valve>) {
     for (key, value) in valves {
         println!("{}{}{}: {:?}", color::Fg(color::Blue), key, color::Fg(color::Reset),  value);
     }
+    println!("Valves: {}", valves.len());
 }
 
-const num_of_days: u32 = 30;
+const num_of_days: u32 = 26;
 
 // Breath first search
 // Look at the valve if the valve value 
@@ -32,7 +34,7 @@ struct ValveState {
     path: Vec<String>,
 }
 
-fn take_step(valve_states: &Vec<ValveState>, seen_states: &mut HashMap<(String,Vec<String>), u32>) -> Vec<ValveState> {
+fn take_step(valve_states: &Vec<ValveState>) -> Vec<ValveState> {
     let mut new_valve_states = Vec::new();
     for valve_state in valve_states.iter() {
         if valve_state.time_remaining == 0 {
@@ -133,6 +135,78 @@ fn filter_only(
     result
 }
 
+
+use itertools::Itertools;
+
+fn split_and_comute(vec: Vec<String>) -> Vec<(Vec<String>, Vec<String>)> {
+    let mut result = Vec::new();
+    for i in 0..vec.len() {
+        vec.clone().into_iter().combinations(i).for_each(|c| -> () {
+            let mut temp_vec = vec.clone();
+            for v in c.iter() {
+                let position = temp_vec.iter().position(|x| x == v).unwrap();
+                temp_vec.remove(position);
+            }
+            result.push((c.clone(), temp_vec.clone()));
+        });
+    }
+    result
+}
+
+fn filter_and_split_state(state: ValveState, valve_split:&(Vec<String>,Vec<String>)) -> (ValveState, ValveState) {
+    let mut state1 = state.clone();
+    let mut state2 = state.clone();
+    state1.valves = state1.valves.iter()
+    .filter(|v| valve_split.0.contains(&v.0))
+    .map(|v| { 
+        let mut new_valve = v.1.clone();
+        new_valve.tunnels = new_valve.tunnels.iter().filter(|t| valve_split.0.contains(&t.0)).map(|t| (t.0.clone(), t.1.clone())).collect();
+        (v.0.clone(), new_valve)
+    })
+    .map(|v| (v.0.clone(), v.1.clone())).collect();
+    state1.valves.insert("AA".to_string(), Valve {
+        id: "AA".to_string(),
+        open: false,
+        flow_rate: 0,
+        tunnels: state.valves.get(&"AA".to_string()).unwrap().tunnels.iter().filter(|t| valve_split.0.contains(&t.0)).map(|t| (t.0.clone(), t.1.clone())).collect(),
+    });
+    state2.valves = state2.valves.iter()
+    .filter(|v| valve_split.1.contains(&v.0))
+    .map(|v| { 
+        let mut new_valve = v.1.clone();
+        new_valve.tunnels = new_valve.tunnels.iter().filter(|t| valve_split.1.contains(&t.0)).map(|t| (t.0.clone(), t.1.clone())).collect();
+        (v.0.clone(), new_valve)
+    })
+    .map(|v| (v.0.clone(), v.1.clone())).collect();
+    state2.valves.insert("AA".to_string(), Valve {
+        id: "AA".to_string(),
+        open: false,
+        flow_rate: 0,
+        tunnels: state.valves.get(&"AA".to_string()).unwrap().tunnels.iter().filter(|t| valve_split.1.contains(&t.0)).map(|t| (t.0.clone(), t.1.clone())).collect(),
+    });
+    (state1, state2)
+}
+
+fn calculate_max_from_state(valve_states: Vec<ValveState>) -> u32 {
+    let mut completed_valve_states = vec![];
+    let mut valve_states = valve_states;
+    loop {
+        if valve_states.clone().iter().all(|v| v.time_remaining == 0) {
+            break;
+        }
+        valve_states = take_step(&valve_states);
+        completed_valve_states.append(&mut valve_states.clone().iter().filter(|v| v.time_remaining == 0).map(|v| v.clone()).collect::<Vec<ValveState>>());
+        valve_states = valve_states.into_iter().filter(|v| v.time_remaining > 0).collect::<Vec<ValveState>>();
+        if valve_states.len() == 0 {
+            break;
+        }
+        let max_days = valve_states.iter().map(|v| v.time_remaining).max().unwrap();
+        // println!("{}Days passed{}: {}{}{} States: {}{}{}", color::Fg(color::Yellow), color::Fg(color::Reset), color::Fg(color::Red), max_days, color::Fg(color::Reset), color::Fg(color::LightGreen), valve_states.len(), color::Fg(color::Reset));
+    }
+    completed_valve_states.sort_by(|a, b| b.current_flow.cmp(&a.current_flow));
+    completed_valve_states[0].current_flow
+}
+
 pub fn run(input: &str) -> String {
     let mut valves = HashMap::new();
     for line in input.lines() {
@@ -154,8 +228,11 @@ pub fn run(input: &str) -> String {
     let mut valves = calculate_travel_time_to_interesting_valves(&valves, &interesting_valves);
     valves = filter_only(&valves, "AA");
     print_valves(&valves);
-    
-    let mut valve_states = Vec::new();
+    let commutations = split_and_comute(interesting_valves);
+    println!("{} commutations", commutations.len());
+    println!("{:?} first commutations", commutations.first().unwrap());
+    println!("{:?} last commutations", commutations.last().unwrap());
+    println!("{:?} middle commutations", commutations.get(commutations.len() / 2).unwrap());
     let valve_state = ValveState {
         valves: valves.clone(),
         open_valves: Vec::new(),
@@ -165,37 +242,32 @@ pub fn run(input: &str) -> String {
         current_valve: "AA".to_string(),
     };
 
-    valve_states.push(valve_state);
-    let mut seen_states = HashMap::new();
-    let mut completed_valve_states = vec![]; 
-    loop {
-        if valve_states.clone().iter().all(|v| v.time_remaining == 0) {
-            break;
+    let max_max = 0;
+    let count = 0;
+    let max_max = Mutex::new(max_max);
+    let count = Mutex::new(count);
+    commutations.par_iter().for_each(|comutation| {
+        let (state1, state2) = filter_and_split_state(valve_state.clone(), comutation);
+        let mut max1 = 0;
+        if state1.valves.len() > 1 {
+            max1 = calculate_max_from_state(vec![state1.clone()]);
         }
-        valve_states = take_step(&valve_states, &mut seen_states);
-        completed_valve_states.append(&mut valve_states.clone().iter().filter(|v| v.time_remaining == 0).map(|v| v.clone()).collect::<Vec<ValveState>>());
-        valve_states = valve_states.into_iter().filter(|v| v.time_remaining > 0).collect::<Vec<ValveState>>();
-        if valve_states.len() == 0 {
-            break;
+        let mut max2 = 0;
+        if state2.valves.len() > 1 {
+            max2 = calculate_max_from_state(vec![state2.clone()]);
         }
-        let max_days = valve_states.iter().map(|v| v.time_remaining).max().unwrap();
-        println!("{}Days passed{}: {}{}{} States: {}{}{} Seen {}{}{}", color::Fg(color::Yellow), color::Fg(color::Reset), color::Fg(color::Red), max_days, color::Fg(color::Reset), color::Fg(color::LightGreen), valve_states.len(), color::Fg(color::Reset), color::Fg(color::Green), seen_states.len(), color::Fg(color::Reset));
-    }
-    completed_valve_states.sort_by(|a, b| b.current_flow.cmp(&a.current_flow));
-    let max_flow = completed_valve_states[0].current_flow;
-    // let mut max_path = valve_states[0].path.clone();
-    
-    for i in 0..completed_valve_states[0].path.len() {
-        let value = completed_valve_states[0].path[i].clone();
-        print!("{value}");
-        for j in 0..1 {
-            if value != completed_valve_states[j].path[i] {
-                print!("/ {j} {}", completed_valve_states[j].path[i]);
-            }
+        let max = max1 + max2;
+        let mut max_max = max_max.lock().unwrap();
+        let mut count = count.lock().unwrap();
+        *count += 1;
+        if max > *max_max {
+            *max_max = max;
+            println!("{}{}{}: Split \n{:?}\n{:?}", color::Fg(color::Yellow), max, color::Fg(color::Reset), state1.valves.iter().map(|v| v.0).collect::<Vec<_>>(), state2.valves.iter().map(|v| v.0).collect::<Vec<_>>());
+            println!("{}Executed{}: {}\n", color::Fg(color::Yellow), color::Fg(color::Reset), *count );
         }
-        println!()
-    }
 
-
-    max_flow.to_string()
+    });
+    let max = max_max.lock().unwrap();
+    let result = *max;
+    result.to_string()
 }
